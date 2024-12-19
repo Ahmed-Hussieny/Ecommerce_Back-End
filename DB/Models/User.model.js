@@ -46,8 +46,7 @@ const userSchem = new Schema(
     },
     resetPasswordCode:{
       type: String,
-      default: null,
-      unique: true,
+      default: null
     },
     resetPasswordCodeExpires :{
       type: Date,

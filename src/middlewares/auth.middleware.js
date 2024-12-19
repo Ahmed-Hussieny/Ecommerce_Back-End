@@ -32,15 +32,18 @@ export const auth = (accessRoles) => {
       return next();
     } catch (error) {
       //* check if the token is expired
-      if (error == 'TokenExpiredError: jwt expired') {
+      if (error == 'TokenExpiredError: jwt expired' || error == 'JsonWebTokenError: invalid signature') {
         const findUser = await User.findOne({ token });
         if (!findUser) return next({ message: "wrong token", cause: 404 });
         const newToken = jwt.sign({email: findUser.email, role:findUser.role, id:findUser._id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRATION});
         findUser.token = newToken;
         await findUser.save();
         req.authUser = findUser;
-        res.status(200).json({message: "Token is refreshed", token: newToken});
+        return res.status(200).json({message: "Token is refreshed", token: newToken});
         // return next();
+      }
+      else if(error == 'JsonWebTokenError: invalid signature'){
+        return next({ message: "invalid token signature", cause: 401 });
       }
     }
   };

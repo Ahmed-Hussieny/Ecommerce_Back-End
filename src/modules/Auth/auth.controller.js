@@ -4,8 +4,8 @@ import bcrypt from 'bcryptjs';
 import sendEmailService from '../../services/send-email.services.js';
 import { verificationEmailTemplete } from '../../utils/verify-email-templet.js';
 import  { generateUniqueCode } from '../../utils/generateUniqueString.js';
-//& ===================== SIGN UP API =====================
 
+//& ===================== SIGN UP API =====================
 export const signUp = async (req, res, next) => {
     //* 1- destructure the request body
     const {username, email, password, phoneNumbers, addresses, role, age} = req.body;
@@ -21,7 +21,7 @@ export const signUp = async (req, res, next) => {
     const isEmailSent = await sendEmailService({
         to: email,
         subject: 'Email verification',
-        message: verificationEmailTemplete(username,`http://localhost:3000/auth/verifyEmail?userToken=${userToken}`)
+        message: verificationEmailTemplete(username,`${process.env.HOST_URL}/auth/verifyEmail?userToken=${userToken}`)
     });
     if(!isEmailSent) return next({message: 'Email is not sent', cause: 500});
 
