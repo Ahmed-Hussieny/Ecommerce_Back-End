@@ -50,5 +50,10 @@ const brandSchema = new Schema({
     toObject: { virtuals: true }
 }) 
 
+brandSchema.virtual('products', {
+    ref: 'Product',
+    localField: '_id',
+    foreignField: 'brandId'
+});
 const Brand = mongoose.models.Brand || model('Brand', brandSchema);
 export default Brand;

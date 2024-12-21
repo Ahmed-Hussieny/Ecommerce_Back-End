@@ -5,6 +5,7 @@ import SubCategory from '../../../DB/Models/sub-category.model.js';
 import { generateUniqueString } from '../../utils/generateUniqueString.js';
 import cloudinaryConnection from '../../utils/cloudinary.js';
 import { systemRoles } from '../../utils/system-roles.js';
+import { APIFeatures } from '../../utils/api-feature.js';
 //&================== ADD BRAND ==================//
 export const addBrand = async (req, res, next) => {
     //* destructuring the data from the request body
@@ -162,8 +163,14 @@ export const deleteBrand = async (req, res, next) => {
 
 //&===================== GET ALL BRANDS =====================//
 export const getAllBrands = async (req, res, next)=>{
+    //* destructuring the query params
+    const {page, size, sortBy, ...search} = req.query;
     //* get all brands
-    const brands = await Brand.find();
+    const feature = new APIFeatures(req.query, Brand.find().populate('subCategoryId'));
+    feature.pagination({page, size});
+    feature.sort(sortBy);
+    feature.search(search);
+    const brands = await feature.mongooseQuery;
     if(!brands) return next({cause: 404, message: 'No brands found'});
 
     //* return the response

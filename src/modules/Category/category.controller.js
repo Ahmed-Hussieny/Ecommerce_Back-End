@@ -5,6 +5,7 @@ import cloudinaryConnection from "../../utils/cloudinary.js";
 import SubCategory from "../../../DB/Models/sub-category.model.js";
 import Brand from "../../../DB/Models/brand.model.js";
 import { systemRoles } from "../../utils/system-roles.js";
+import { APIFeatures } from "../../utils/api-feature.js";
 
 //&================== ADD CATEGORY ==================//
 export const addCategory = async (req, res, next) => {
@@ -181,10 +182,17 @@ export const deleteCategory = async (req, res, next) => {
 
 //&================= GET ALL CATEGORIES ================//
 export const getAllCategories = async (req, res, next) => {
+    //* destructuring the data from the request body
+    const {page, size, sortBy, ...search} = req.query;
     //* get all categories
-    const categories = await Category.find().populate({
+    const feature = new APIFeatures(req.query, Category.find().populate({
         path:'subCategories'
-    });
+    }));
+    feature.pagination({page, size});
+    feature.sort(sortBy);
+    feature.search(search);
+
+    const categories = await feature.mongooseQuery;
     if(!categories){
         return next({
             message: 'Categories not found',
