@@ -1,4 +1,4 @@
-import User from "../../../DB/Models/User.model.js";
+import User from "../../../DB/Models/user.model.js";
 import bcrypt from 'bcryptjs';
 //& ================ UPDATE USER ================
 export const updateLoggedInUser = async (req, res, next) => {

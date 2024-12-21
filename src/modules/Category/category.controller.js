@@ -1,7 +1,10 @@
-import Category from "../../../DB/Models/Category.model.js";
+import Category from "../../../DB/Models/category.model.js";
 import slugify from "slugify";
 import { generateUniqueString } from "../../utils/generateUniqueString.js";
 import cloudinaryConnection from "../../utils/cloudinary.js";
+import SubCategory from "../../../DB/Models/sub-category.model.js";
+import Brand from "../../../DB/Models/brand.model.js";
+import { systemRoles } from "../../utils/system-roles.js";
 
 //&================== ADD CATEGORY ==================//
 export const addCategory = async (req, res, next) => {
@@ -145,6 +148,10 @@ export const deleteCategory = async (req, res, next) => {
             cause: 404
         });
     }
+    //* check if the user is authorized to delete the brand
+    if(!category.addedBy.equals(req.authUser._id) && req.authUser.role != systemRoles.ADMIN)
+        return next({cause: 403, message: 'You are not authorized to delete this brand'});
+        
     //* delete the category
     const deletedCategory = await Category.findByIdAndDelete(categoryId);
     if(!deletedCategory){
@@ -153,9 +160,14 @@ export const deleteCategory = async (req, res, next) => {
             cause: 500
         })
     }
-    //^ delete subCategories
-    //^ delete products
-    //^ delete images from cloudinary
+    //* delete subCategories
+    const subCategories = await SubCategory.find({categoryId: categoryId});
+    await SubCategory.deleteMany({categoryId: categoryId});
+
+    //* delete brands
+    await Brand.deleteMany({subCategoryId: {$in: subCategories.map(subCategory => subCategory._id)}});
+
+    //* delete images from cloudinary
     await cloudinaryConnection().api.delete_resources_by_prefix(`${process.env.MAIN_CLOUDINARY_FOLDER}/Categories/${category.folderId}`);
     await cloudinaryConnection().api.delete_folder(`${process.env.MAIN_CLOUDINARY_FOLDER}/Categories/${category.folderId}`);
 

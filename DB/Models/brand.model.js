@@ -1,29 +1,28 @@
 import mongoose, { model, Schema } from "mongoose";
 
-const subCategorySchema = new Schema({
+const brandSchema = new Schema({
     name:{
         type: String,
         required: true,
-        unique: true,
+        trim: true
+    },
+    description:{
+        type: String,
         trim: true
     },
     slug:{
         type: String,
         required: true,
-        unique: true,
         trim: true
-    },
-    description:{
-        type: String
     },
     image:{
         secure_url:{
             type: String,
-            required: true
+            required: true,
         },
         public_id:{
             type: String,
-            required: true
+            required: true,
         }
     },
     folderId:{
@@ -40,24 +39,16 @@ const subCategorySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
     },
-    categoryId:{
+    subCategoryId:{
         type: Schema.Types.ObjectId,
-        ref: 'Category',
+        ref: 'SubCategory',
         required: true
     }
-
-},{
+}, {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
-});
+}) 
 
-// Virtual populate
-subCategorySchema.virtual('Brands', {
-    ref: 'Brand',
-    localField: '_id',
-    foreignField: 'subCategoryId'
-})
-
-const SubCategory = mongoose.models.SubCategory || model('SubCategory', subCategorySchema);
-export default SubCategory;
+const Brand = mongoose.models.Brand || model('Brand', brandSchema);
+export default Brand;

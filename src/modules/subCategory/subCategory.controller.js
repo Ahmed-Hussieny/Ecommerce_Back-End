@@ -1,9 +1,10 @@
 import slugify from "slugify";
-import Category from "../../../DB/Models/Category.model.js";
+import Category from "../../../DB/Models/category.model.js";
 import { generateUniqueString } from "../../utils/generateUniqueString.js";
 import cloudinaryConnection from "../../utils/cloudinary.js";
 import SubCategory from "../../../DB/Models/sub-category.model.js";
 import { systemRoles } from "../../utils/system-roles.js";
+import Brand from '../../../DB/Models/brand.model.js';
 
 //&================== ADD SUBCATEGORY ==================//
 export const addSubCategory = async (req, res, next) => {
@@ -125,7 +126,7 @@ export const updateSubCategory = async (req, res, next) => {
     //* check if the description is changed
     if(description) subCategory.description = description;
 
-    //* check if the image is uploaded
+    //* update the public_id of the image
     if(oldPublicId){
     
         //* check if the image is uploaded
@@ -178,6 +179,13 @@ export const deleteSubCategory = async (req, res, next) => {
             cause: 404
         })
     }
+    //* check if the user is authorized to delete the brand
+    if(!subCategory.addedBy.equals(req.authUser._id) && req.authUser.role != systemRoles.ADMIN)
+        return next({cause: 403, message: 'You are not authorized to delete this brand'});
+    
+    //* delete all brands of the subCategory
+    const brands = await Brand.find({subCategoryId});
+    await Brand.deleteMany({subCategoryId});
 
     //* delete the subCategory
     const deletedSubCategory = await SubCategory.findByIdAndDelete(subCategoryId);
@@ -187,8 +195,9 @@ export const deleteSubCategory = async (req, res, next) => {
             cause: 500
         })
     }
-
+    
     //* delete products of the subCategory
+    
 
     //* delete images from cloudinary
     await cloudinaryConnection().api.delete_resources_by_prefix(`${process.env.MAIN_CLOUDINARY_FOLDER}/Categories/${subCategory.categoryId.folderId}/SubCategories/${subCategory.folderId}`);
@@ -205,7 +214,7 @@ export const deleteSubCategory = async (req, res, next) => {
 //&=================== GET ALL SUBCATEGORIES ==================//
 export const getAllSubCategories = async (req, res, next) => {
     //* get all subCategories
-    const subCategories = await SubCategory.find();
+    const subCategories = await SubCategory.find().populate('Brands');
     if(!subCategories){
         return next({
             message: 'SubCategories not found',
@@ -225,7 +234,7 @@ export const getSingleSubCategory = async (req, res, next) => {
     //* get the subCategoryId from the params
     const { subCategoryId } = req.params;
     //* check if the subCategory exists
-    const subCategory = await SubCategory.findById(subCategoryId);
+    const subCategory = await SubCategory.findById(subCategoryId).populate('Brands');
     if(!subCategory){
         return next({
             message: 'SubCategory not found',
