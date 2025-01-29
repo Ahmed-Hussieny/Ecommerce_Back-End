@@ -1,4 +1,4 @@
-# eCommerce App Documentation
+# ECommerce App Documentation
 
 ## Overview
 This project is a full-stack eCommerce application built using **Node.js**, **Express**, and **MongoDB**. It includes features like user authentication, product management, shopping cart, order processing, coupon validation, and payment integration. The app is designed to be scalable, secure, and user-friendly.
