@@ -8,15 +8,15 @@ import { cronToChangeExpirationCoupons } from "./utils/crons.js";
 export const initiateApp = ({app, express}) => {
     app.use(express.json());
     connection_DB();
-    app.use('/auth', routers.authRouter);
-    app.use('/user', routers.userRouter);
-    app.use('/category', routers.categoryRouter);
-    app.use('/subCategory', routers.subCategoryRouter);
-    app.use('/brand', routers.brandRouter);
-    app.use('/product', routers.productRouter);
-    app.use('/cart', routers.cartRouter);
-    app.use('/coupon', routers.couponRouter);
-    app.use('/order', routers.orderRouter);
+    app.use('/api/v1/auth', routers.authRouter);
+    app.use('/api/v1/user', routers.userRouter);
+    app.use('/api/v1/category', routers.categoryRouter);
+    app.use('/api/v1/subCategory', routers.subCategoryRouter);
+    app.use('/api/v1/brand', routers.brandRouter);
+    app.use('/api/v1/product', routers.productRouter);
+    app.use('/api/v1/cart', routers.cartRouter);
+    app.use('/api/v1/coupon', routers.couponRouter);
+    app.use('/api/v1/order', routers.orderRouter);
 
     app.use('*',(req,res,next)=>{
         next({message:"Route not found",status:404});
